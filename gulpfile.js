@@ -2,6 +2,15 @@ const gulp = require('gulp');
 const fileInclude = require('gulp-file-include');
 const sass = require('gulp-sass')(require('sass'));
 const server = require('gulp-server-livereload');
+const clean = require('gulp-clean');
+const fs = require('fs');
+
+gulp.task('clean', function(done) {
+	if (fs.existsSync('./dist/')) {
+		return gulp.src('./dist/', { read: false }).pipe(clean());
+	}
+	done();
+});
 
 const fileIncludeSettings = {
 	prefix: '@@',
