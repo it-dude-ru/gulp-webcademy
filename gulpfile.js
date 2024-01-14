@@ -5,7 +5,9 @@ const server = require('gulp-server-livereload');
 const clean = require('gulp-clean');
 const fs = require('fs');
 const sourceMaps = require('gulp-sourcemaps');
-
+// const groupMedia = require('gulp-group-css-media-queries');
+const plumber = require('gulp-plumber');
+const notify = require('gulp-notify');
 
 gulp.task('clean', function(done) {
 	if (fs.existsSync('./dist/')) {
@@ -19,22 +21,43 @@ const fileIncludeSettings = {
 	basepath: '@file'
 };
 
+const plumberNotify = (title) => {
+	return {
+		errorHandler: notify.onError({
+			title,
+			message: 'Error <%= error.message %>',
+			sound: false
+		})
+	};
+}
+
 gulp.task('html', function() {
 	return gulp.src('./src/*.html')
+		.pipe(plumber(plumberNotify('HTML')))
 		.pipe(fileInclude(fileIncludeSettings))
 		.pipe(gulp.dest('./dist/'));
 });
 
 gulp.task('sass', function() {
 	return gulp.src('./src/scss/*.scss')
+		.pipe(plumber(plumberNotify('Styles')))
 		.pipe(sourceMaps.init())
 		.pipe(sass())
+		// .pipe(groupMedia())
 		.pipe(sourceMaps.write())
 		.pipe(gulp.dest('./dist/css/'));
 });
 
 gulp.task('images', function() {
 	return gulp.src('./src/img/**/*').pipe(gulp.dest('./dist/img/'));
+});
+
+gulp.task('fonts', function() {
+	return gulp.src('./src/fonts/**/*').pipe(gulp.dest('./dist/fonts/'));
+});
+
+gulp.task('files', function() {
+	return gulp.src('./src/files/**/*').pipe(gulp.dest('./dist/files/'));
 });
 
 const serverOptions = {
@@ -49,11 +72,13 @@ gulp.task('server', function() {
 gulp.task('watch', function() {
 	gulp.watch('./src/scss/**/*.scss', gulp.parallel('sass'));
 	gulp.watch('./src/**/*.html', gulp.parallel('html'));
-	gulp.watch('./src/image/**/*', gulp.parallel('images'));
+	gulp.watch('./src/img/**/*', gulp.parallel('images'));
+	gulp.watch('./src/fonts/**/*', gulp.parallel('fonts'));
+	gulp.watch('./src/files/**/*', gulp.parallel('files'));
 });
 
 gulp.task('default', gulp.series(
-		'clean',
-		gulp.parallel('html', 'sass', 'images'),
-		gulp.parallel('server', 'watch')
-	));
+	'clean',
+	gulp.parallel('html', 'sass', 'images', 'fonts', 'files'),
+	gulp.parallel('server', 'watch')
+));

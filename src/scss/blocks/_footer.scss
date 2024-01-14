@@ -1,7 +1,11 @@
-.header {
-	border-color: #0011ff;
+.footer {
+	background-color: #6200ff;
 	padding: 100px 0;
-	font-size: 38px;
+	font-size: 32px;
 	color: white;
 	text-align: center;
+	
+	@media (max-width: 1200px) {
+		font-size: 26px;
+	}
 }
