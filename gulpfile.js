@@ -9,6 +9,8 @@ const sourceMaps = require('gulp-sourcemaps');
 const plumber = require('gulp-plumber');
 const notify = require('gulp-notify');
 
+const webpack = require('webpack-stream');
+
 gulp.task('clean', function(done) {
 	if (fs.existsSync('./dist/')) {
 		return gulp.src('./dist/', { read: false }).pipe(clean());
@@ -60,6 +62,13 @@ gulp.task('files', function() {
 	return gulp.src('./src/files/**/*').pipe(gulp.dest('./dist/files/'));
 });
 
+gulp.task('js', function() {
+	return gulp.src('./src/js/*.js')
+		.pipe(plumber(plumberNotify('JS')))
+		.pipe(webpack(require('./webpack.config.js')))
+		.pipe(gulp.dest('./dist/js'))
+});
+
 const serverOptions = {
 	livereload: true,
 	open: true
@@ -75,10 +84,11 @@ gulp.task('watch', function() {
 	gulp.watch('./src/img/**/*', gulp.parallel('images'));
 	gulp.watch('./src/fonts/**/*', gulp.parallel('fonts'));
 	gulp.watch('./src/files/**/*', gulp.parallel('files'));
+	gulp.watch('./src/js/**/*', gulp.parallel('js'));
 });
 
 gulp.task('default', gulp.series(
 	'clean',
-	gulp.parallel('html', 'sass', 'images', 'fonts', 'files'),
+	gulp.parallel('html', 'sass', 'images', 'fonts', 'files', 'js'),
 	gulp.parallel('server', 'watch')
 ));
