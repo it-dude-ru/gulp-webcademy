@@ -8,8 +8,8 @@ const sourceMaps = require('gulp-sourcemaps');
 // const groupMedia = require('gulp-group-css-media-queries');
 const plumber = require('gulp-plumber');
 const notify = require('gulp-notify');
-
 const webpack = require('webpack-stream');
+const babel = require('gulp-babel');
 
 gulp.task('clean', function(done) {
 	if (fs.existsSync('./dist/')) {
@@ -65,6 +65,7 @@ gulp.task('files', function() {
 gulp.task('js', function() {
 	return gulp.src('./src/js/*.js')
 		.pipe(plumber(plumberNotify('JS')))
+		.pipe(babel())
 		.pipe(webpack(require('./webpack.config.js')))
 		.pipe(gulp.dest('./dist/js'))
 });
