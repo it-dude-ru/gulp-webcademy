@@ -10,8 +10,9 @@ const plumber = require('gulp-plumber');
 const notify = require('gulp-notify');
 const webpack = require('webpack-stream');
 const babel = require('gulp-babel');
+const imagemin = require('gulp-imagemin');
 
-gulp.task('clean', function(done) {
+gulp.task('clean', function (done) {
 	if (fs.existsSync('./dist/')) {
 		return gulp.src('./dist/', { read: false }).pipe(clean());
 	}
@@ -33,14 +34,14 @@ const plumberNotify = (title) => {
 	};
 }
 
-gulp.task('html', function() {
+gulp.task('html', function () {
 	return gulp.src('./src/*.html')
 		.pipe(plumber(plumberNotify('HTML')))
 		.pipe(fileInclude(fileIncludeSettings))
 		.pipe(gulp.dest('./dist/'));
 });
 
-gulp.task('sass', function() {
+gulp.task('sass', function () {
 	return gulp.src('./src/scss/*.scss')
 		.pipe(plumber(plumberNotify('Styles')))
 		.pipe(sourceMaps.init())
@@ -50,19 +51,21 @@ gulp.task('sass', function() {
 		.pipe(gulp.dest('./dist/css/'));
 });
 
-gulp.task('images', function() {
-	return gulp.src('./src/img/**/*').pipe(gulp.dest('./dist/img/'));
+gulp.task('images', function () {
+	return gulp.src('./src/img/**/*')
+		.pipe(imagemin({ verbose: true }))
+		.pipe(gulp.dest('./dist/img/'));
 });
 
-gulp.task('fonts', function() {
+gulp.task('fonts', function () {
 	return gulp.src('./src/fonts/**/*').pipe(gulp.dest('./dist/fonts/'));
 });
 
-gulp.task('files', function() {
+gulp.task('files', function () {
 	return gulp.src('./src/files/**/*').pipe(gulp.dest('./dist/files/'));
 });
 
-gulp.task('js', function() {
+gulp.task('js', function () {
 	return gulp.src('./src/js/*.js')
 		.pipe(plumber(plumberNotify('JS')))
 		.pipe(babel())
@@ -75,11 +78,11 @@ const serverOptions = {
 	open: true
 };
 
-gulp.task('server', function() {
+gulp.task('server', function () {
 	return gulp.src('./dist/').pipe(server(serverOptions));
 });
 
-gulp.task('watch', function() {
+gulp.task('watch', function () {
 	gulp.watch('./src/scss/**/*.scss', gulp.parallel('sass'));
 	gulp.watch('./src/**/*.html', gulp.parallel('html'));
 	gulp.watch('./src/img/**/*', gulp.parallel('images'));
